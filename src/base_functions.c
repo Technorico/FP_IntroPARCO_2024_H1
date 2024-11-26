@@ -1,12 +1,17 @@
 #ifndef __BASE_FUNCTIONS_C__
     #define __BASE_FUNCTIONS_C__
 
+    // ------------------------------- DEFINES -------------------------------
+
     #ifndef DEBUG
         #define DEBUG 0
     #endif
 
-    #include <inttypes.h>
+    // ------------------------------- INCLUDES ------------------------------
+
+    #include <stdio.h>
     #include <stdlib.h>
+    #include <inttypes.h>
     #include <stdbool.h>
     #ifdef _OPENMP
         #include <omp.h>

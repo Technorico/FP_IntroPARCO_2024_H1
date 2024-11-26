@@ -25,7 +25,6 @@ DEBUG DEFINE can assume multiple values(0, 1, 2, 3):
     #define RESULT_CSV_PATH "./results.csv"
 #endif
 
-
 #define RAND_LOB -1000000
 #define RAND_UPB 1000000
 #define DIV_VALUE 1000.0
@@ -81,15 +80,15 @@ int main() {
         #endif
         matTransposeTime = wt2 - wt1;
 
+        //uint64_t memory_rw = (SIZE * SIZE + SIZE) * 2; //This countes the double writes/reads of diagonal values
+        uint64_t memory_rw = (SIZE * SIZE) * 2; //This doesn't take into account the additional memory accesses. (Probably the difference will not be so relevant because of caches)
+        //The sequential implementation read one time every source position of the input matrix and writes one time every 
+        //destination of the output matrix, except for the diagonals values
+        //(that are red and written twice the times respect to the others memory locations).
+
+        //Append to RESULT_CSV_PATH the results of the run
         #if DEBUG >= 0
-            FILE *fp = fopen(RESULT_CSV_PATH, "a");
-            if(fp == NULL){
-                printf("\e[91;1mCould NOT open the file!!\e[0m\n");
-            }
-            else{
-                fprintf(fp, "%"PRIu32":%"PRIu64":%15.9f:%15.9f\n", rand_seed, SIZE, symCheckTime, matTransposeTime);
-                fclose(fp);
-            }
+            saveResults(RESULT_CSV_PATH, rand_seed, SIZE, memory_rw, symCheckTime, matTransposeTime);
         #endif
         #if DEBUG >= 1
             printf("The two matrices are equal? -> %s\n", (matCheckEquality(M, M, SIZE)?"True":"False"));

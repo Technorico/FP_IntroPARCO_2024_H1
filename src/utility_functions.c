@@ -1,10 +1,19 @@
 #ifndef __UTILITY_FUNCTIONS_C__
     #define __UTILITY_FUNCTIONS_C__
 
+    // ------------------------------- DEFINES -------------------------------
+
     #ifndef DEBUG
         #define DEBUG 0
     #endif
+    #ifndef RESULT_CSV_PATH
+        #define RESULT_CSV_PATH "./results.csv"
+    #endif
 
+    // ------------------------------- INCLUDES ------------------------------
+
+    #include <stdio.h>
+    #include <stdlib.h>
     #include <stdbool.h>
     #include <inttypes.h>
 
@@ -50,6 +59,17 @@
             }
         }
         return equal;
+    }
+
+    void saveResults(char *file_path, uint32_t rand_seed, uint64_t side_size, uint64_t memory_rw, float symCheckTime, float matTransposeTime){
+        FILE *fp = fopen(file_path, "a");
+        if(fp == NULL){
+            printf("\e[91;1mCould NOT open the file!!\e[0m\n");
+        }
+        else{
+            fprintf(fp, "%"PRIu32":%"PRIu64":%"PRIu64":%15.9f:%15.9f\n", rand_seed, side_size, memory_rw, symCheckTime, matTransposeTime);
+            fclose(fp);
+        }
     }
 
     // ----------------------------------------------------------------------
