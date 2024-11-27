@@ -58,4 +58,12 @@
         *wt_end = omp_get_wtime();
         return temp_mat;
     }
+
+    // Implemented checkSymImp and matTransposeImp with "__builtin_prefetch()" as implicit parallelization/optimization technique
+
+    // Implemented checkSymImp and matTransposeImp with "tiling/blocking" as implicit parallelization/optimization technique
+
+    // Implemented checkSymImp and matTransposeImp with "manual partial unroll" as implicit parallelization/optimization technique
+
+    // Implemented checkSymImp and matTransposeImp with "__builtin_expect" as implicit parallelization/optimization technique
 #endif
