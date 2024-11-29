@@ -67,7 +67,7 @@
             printf("\e[91;1mCould NOT open the file!!\e[0m\n");
         }
         else{
-            fprintf(fp, "%"PRIu32":%"PRIu64":%"PRIu64":%15.9f:%15.9f\n", rand_seed, side_size, memory_rw, symCheckTime, matTransposeTime);
+            fprintf(fp, "%"PRIu32":%"PRIu64":%"PRIu64":%015.9f:%015.9f\n", rand_seed, side_size, memory_rw, symCheckTime, matTransposeTime);
             fclose(fp);
         }
     }
