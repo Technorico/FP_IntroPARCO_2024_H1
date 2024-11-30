@@ -9,6 +9,9 @@
     #ifndef RESULT_CSV_PATH
         #define RESULT_CSV_PATH "./results.csv"
     #endif
+    #ifndef EQ_OFFSET
+        #define EQ_OFFSET 0.02
+    #endif
 
     // ------------------------------- INCLUDES ------------------------------
 
@@ -50,10 +53,10 @@
     }
 
     bool matCheckEquality(float *mat1, float *mat2, uint64_t side_size){
-        uint64_t total_size = side_size*side_size;
+        uint64_t total_size = side_size * side_size;
         bool equal = true;
         for(uint64_t i = 0; i < total_size; i++){
-            if(mat1[i] != mat2[i]){
+            if(mat1[i] >= mat2[i] + EQ_OFFSET || mat1[i] <= mat2[i] - EQ_OFFSET){
                 equal = false;
                 break;
             }

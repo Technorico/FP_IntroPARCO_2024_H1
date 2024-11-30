@@ -76,8 +76,8 @@
         #endif
         bool isSym = true;
         *wt_start = omp_get_wtime();
-        __builtin_prefetch(&(in_matrix[SIZE]), 0, 1);
-        __builtin_prefetch(&(in_matrix[0]), 0, 1);
+        //__builtin_prefetch(&(in_matrix[side_size]), 0, 1);
+        //__builtin_prefetch(&(in_matrix[0]), 0, 1);
         for(uint64_t margin_idx = 0; margin_idx < side_size; margin_idx++){
             // Setting the inital value to 1 instead of 0: in this way the diagonal values are skipped
             // This should not be done in this function, because this will imply the diagonal values are not copied!
