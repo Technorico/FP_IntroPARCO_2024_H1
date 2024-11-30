@@ -7,7 +7,12 @@
         #define DEBUG 0
     #endif
     #ifndef PREFETCH_OFFSET
-        #define PREFETCH_OFFSET 4
+        #define PREFETCH_OFFSET 5
+    #endif
+    #ifndef TILE_SIDE_SIZE
+        #define TILE_SIDE_SIZE 16
+        //This is the optimal size for having a tile row loaded within a single cache line
+        //cache_line_size_in_bytes / sizeof(float) = TILE_TOTAL_SIZE | 64 / 4 = 16 elements
     #endif
 
     // ------------------------------- INCLUDES ------------------------------
@@ -123,7 +128,59 @@
     }
 
     // Implemented checkSymImp2 and matTransposeImp2 with "tiling/blocking" as implicit parallelization/optimization technique
-    
+    bool checkSymImp2(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+        #if DEBUG >= 1
+            printf("Function: %s\n", __func__);
+        #endif
+        bool isSym = true;
+        *wt_start = omp_get_wtime();
+        uint64_t n_side_blocks = side_size / TILE_SIDE_SIZE;
+        uint64_t elems_in_row_of_blks = n_side_blocks * TILE_SIDE_SIZE * TILE_SIDE_SIZE;
+        for(uint64_t Cblk_idx = 0; Cblk_idx < n_side_blocks; Cblk_idx++){   
+            for(uint64_t Rblk_idx = 0; Rblk_idx < n_side_blocks; Rblk_idx++){
+                for(uint64_t inBlk_C_idx = 0; inBlk_C_idx < TILE_SIDE_SIZE; inBlk_C_idx++){
+                    for(uint64_t inBlk_R_idx = 0; inBlk_R_idx < TILE_SIDE_SIZE; inBlk_R_idx++){
+                        #if DEBUG >= 3
+                            printf("Block C|R - InBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, inBlk_R_idx);
+                        #endif
+                        //Read index calculated as: Rblk_idx * TILE_SIDE_SIZE + inBlk_R_idx + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size
+                        //Read transposed index calculated as: Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + inBlk_R_idx * side_size
+                        if(in_matrix[Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + inBlk_R_idx * side_size] != in_matrix[Rblk_idx * TILE_SIDE_SIZE + inBlk_R_idx + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size])
+                            isSym = false;
+                    }
+                }
+            }
+        }
+        *wt_end = omp_get_wtime();
+        return isSym;
+    }
+
+    float* matTransposeImp2(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+        #if DEBUG >= 1
+            printf("Function: %s\n", __func__);
+        #endif
+        float* temp_mat = (float*)malloc(side_size * side_size * sizeof(float));
+        *wt_start = omp_get_wtime();
+        uint64_t n_side_blocks = side_size / TILE_SIDE_SIZE;
+        uint64_t elems_in_row_of_blks = n_side_blocks * TILE_SIDE_SIZE * TILE_SIDE_SIZE;
+        for(uint64_t Cblk_idx = 0; Cblk_idx < n_side_blocks; Cblk_idx++){   
+            for(uint64_t Rblk_idx = 0; Rblk_idx < n_side_blocks; Rblk_idx++){
+                for(uint64_t inBlk_C_idx = 0; inBlk_C_idx < TILE_SIDE_SIZE; inBlk_C_idx++){
+                    for(uint64_t inBlk_R_idx = 0; inBlk_R_idx < TILE_SIDE_SIZE; inBlk_R_idx++){
+                        #if DEBUG >= 3
+                            printf("Block C|R - InBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, inBlk_R_idx);
+                        #endif
+                        //Read index calculated as: Rblk_idx * TILE_SIDE_SIZE + inBlk_R_idx + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size
+                        //Write index calculated as: Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + inBlk_R_idx * side_size
+                        temp_mat[Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + inBlk_R_idx * side_size] = in_matrix[Rblk_idx * TILE_SIDE_SIZE + inBlk_R_idx + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size];
+                    }
+                }
+            }
+        }
+        *wt_end = omp_get_wtime();
+        return temp_mat;
+    }
+
     // Implemented checkSymImp and matTransposeImp with "manual partial unroll" as implicit parallelization/optimization technique
 
     // Implemented checkSymImp and matTransposeImp with "__builtin_expect" as implicit parallelization/optimization technique
