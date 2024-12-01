@@ -43,7 +43,7 @@ DEBUG DEFINE can assume multiple values(0, 1, 2, 3):
 #include <omp.h>
 #include <time.h>
 #include "utility_functions.c"
-#include "base_functions.c"
+#include "imp_functions.c"
 
 // --------------------------------- MAIN --------------------------------
 
