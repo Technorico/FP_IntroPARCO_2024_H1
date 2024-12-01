@@ -1,14 +1,3 @@
-/*
-Description: Sequaential implementation of matrix transposition and check of symmetry
-Notes: 
-    - It is assumed that all the matrices are square and have the same dimensions
-    - A value inside a matrix is identified by the tuple (ROW, COL)
-DEBUG DEFINE can assume multiple values(0, 1, 2, 3):
-    0. Is the default one, the program will not write on stdout
-    1. Write on stdout basic information, like times and equality (M == M)
-    2. Write the same of 1, plus it visually displays matrices
-    3. Write the same of 2, plus the indexes iteration by iteration of the two main functions
-*/
 
 // ------------------------------- DEFINES -------------------------------
 
