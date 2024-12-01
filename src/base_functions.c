@@ -40,7 +40,7 @@
                 if(in_matrix[c_idx * side_size + r_idx] != in_matrix[r_idx * side_size + c_idx])
                     isSym = false;
                 #if DEBUG >= 3
-                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", margin_idx, check_idx - margin_idx, side_size * check_idx + margin_idx, check_idx - margin_idx, margin_idx, check_idx + margin_idx * side_size);
+                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", c_idx, r_idx, c_idx * side_size + r_idx, r_idx, c_idx, r_idx * side_size + c_idx);
                 #endif
             }
         }
@@ -58,7 +58,7 @@
             for(uint64_t r_idx = 0; r_idx < side_size; r_idx++){
                 temp_mat[r_idx * side_size + c_idx] = in_matrix[c_idx * side_size + r_idx];
                 #if DEBUG >= 3
-                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", margin_idx, check_idx - margin_idx, side_size * check_idx + margin_idx, check_idx - margin_idx, margin_idx, check_idx + margin_idx * side_size);
+                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", c_idx, r_idx, c_idx * side_size + r_idx, r_idx, c_idx, r_idx * side_size + c_idx);
                 #endif
             }
         }
@@ -77,7 +77,7 @@
                 if(in_matrix[c_idx][r_idx] != in_matrix[r_idx][c_idx])
                     isSym = false;
                 #if DEBUG >= 3
-                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", margin_idx, check_idx - margin_idx, side_size * check_idx + margin_idx, check_idx - margin_idx, margin_idx, check_idx + margin_idx * side_size);
+                    printf("ELEM(%"PRIu64", %"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64")\n", c_idx, r_idx, r_idx, c_idx);
                 #endif
             }
         }
@@ -98,7 +98,7 @@
             for(uint64_t r_idx = 0; r_idx < side_size; r_idx++){
                 temp_mat[c_idx][r_idx] = in_matrix[r_idx][c_idx];
                 #if DEBUG >= 3
-                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", margin_idx, check_idx - margin_idx, side_size * check_idx + margin_idx, check_idx - margin_idx, margin_idx, check_idx + margin_idx * side_size);
+                    printf("ELEM(%"PRIu64", %"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64")\n", c_idx, r_idx, r_idx, c_idx);
                 #endif
             }
         }
@@ -121,7 +121,7 @@
                     __builtin_prefetch(&(in_matrix[c_idx * side_size + r_idx + PREFETCH_OFFSET]), 0, 3);
                     __builtin_prefetch(&(in_matrix[r_idx * side_size + c_idx + PREFETCH_OFFSET]), 0, 3);
                 #if DEBUG >= 3
-                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", margin_idx, check_idx - margin_idx, side_size * check_idx + margin_idx, check_idx - margin_idx, margin_idx, check_idx + margin_idx * side_size);
+                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", c_idx, r_idx, c_idx * side_size + r_idx, r_idx, c_idx, r_idx * side_size + c_idx);
                 #endif
             }
         }
@@ -141,7 +141,7 @@
                 __builtin_prefetch(&(in_matrix[c_idx * side_size + r_idx + PREFETCH_OFFSET]), 0, 3);
                 __builtin_prefetch(&(temp_mat[r_idx * side_size + c_idx + PREFETCH_OFFSET]), 1, 3);
                 #if DEBUG >= 3
-                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", margin_idx, check_idx - margin_idx, side_size * check_idx + margin_idx, check_idx - margin_idx, margin_idx, check_idx + margin_idx * side_size);
+                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", c_idx, r_idx, c_idx * side_size + r_idx, r_idx, c_idx, r_idx * side_size + c_idx);
                 #endif
             }
         }
@@ -162,7 +162,7 @@
                     __builtin_prefetch(&(in_matrix[c_idx][r_idx + PREFETCH_OFFSET]), 0, 3);
                     __builtin_prefetch(&(in_matrix[c_idx + PREFETCH_OFFSET][r_idx]), 0, 3);
                 #if DEBUG >= 3
-                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", margin_idx, check_idx - margin_idx, side_size * check_idx + margin_idx, check_idx - margin_idx, margin_idx, check_idx + margin_idx * side_size);
+                    printf("ELEM(%"PRIu64", %"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64")\n", c_idx, r_idx, r_idx, c_idx);
                 #endif
             }
         }
@@ -185,7 +185,7 @@
                 __builtin_prefetch(&(in_matrix[c_idx][r_idx + PREFETCH_OFFSET]), 0, 3);
                 __builtin_prefetch(&(temp_mat[c_idx + PREFETCH_OFFSET][r_idx]), 1, 3);
                 #if DEBUG >= 3
-                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", margin_idx, check_idx - margin_idx, side_size * check_idx + margin_idx, check_idx - margin_idx, margin_idx, check_idx + margin_idx * side_size);
+                    printf("ELEM(%"PRIu64", %"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64")\n", c_idx, r_idx, r_idx, c_idx);
                 #endif
             }
         }
@@ -207,7 +207,8 @@
                 for(uint64_t inBlk_C_idx = 0; inBlk_C_idx < TILE_SIDE_SIZE; inBlk_C_idx++){
                     for(uint64_t inBlk_R_idx = 0; inBlk_R_idx < TILE_SIDE_SIZE; inBlk_R_idx++){
                         #if DEBUG >= 3
-                            printf("Block C|R - InBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, inBlk_R_idx);
+                            printf("Block C|R - InBlock C|R - Real Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, inBlk_R_idx, Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + inBlk_R_idx * side_size);
+                            printf("TBlock C|R - TInBlock C|R - TReal Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Rblk_idx, Cblk_idx, inBlk_R_idx, inBlk_C_idx, Rblk_idx * TILE_SIDE_SIZE + inBlk_R_idx + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size);
                         #endif
                         //Read index calculated as: Rblk_idx * TILE_SIDE_SIZE + inBlk_R_idx + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size
                         //Read transposed index calculated as: Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + inBlk_R_idx * side_size
@@ -234,7 +235,8 @@
                 for(uint64_t inBlk_C_idx = 0; inBlk_C_idx < TILE_SIDE_SIZE; inBlk_C_idx++){
                     for(uint64_t inBlk_R_idx = inBlk_C_idx; inBlk_R_idx < TILE_SIDE_SIZE; inBlk_R_idx++){
                         #if DEBUG >= 3
-                            printf("Block C|R - InBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, inBlk_R_idx);
+                            printf("Block C|R - InBlock C|R - Real Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, inBlk_R_idx, Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + inBlk_R_idx * side_size);
+                            printf("TBlock C|R - TInBlock C|R - TReal Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Rblk_idx, Cblk_idx, inBlk_R_idx, inBlk_C_idx, Rblk_idx * TILE_SIDE_SIZE + inBlk_R_idx + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size);
                         #endif
                         //Read index calculated as: Rblk_idx * TILE_SIDE_SIZE + inBlk_R_idx + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size
                         //Write index calculated as: Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + inBlk_R_idx * side_size
@@ -262,6 +264,7 @@
                     for(uint64_t inBlk_R_idx = 0; inBlk_R_idx < TILE_SIDE_SIZE; inBlk_R_idx++){
                         #if DEBUG >= 3
                             printf("Block C|R - InBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, inBlk_R_idx);
+                            printf("TBlock C|R - TInBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Rblk_idx, Cblk_idx, inBlk_R_idx, inBlk_C_idx);
                         #endif
                         if(in_matrix[Rblk_idx + inBlk_R_idx][Cblk_idx + inBlk_C_idx] != in_matrix[Cblk_idx + inBlk_C_idx][Rblk_idx + inBlk_R_idx])
                             isSym = false;
@@ -290,6 +293,7 @@
                     for(uint64_t inBlk_R_idx = 0; inBlk_R_idx < TILE_SIDE_SIZE; inBlk_R_idx++){
                         #if DEBUG >= 3
                             printf("Block C|R - InBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, inBlk_R_idx);
+                            printf("TBlock C|R - TInBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Rblk_idx, Cblk_idx, inBlk_R_idx, inBlk_C_idx);
                         #endif
                         temp_mat[Rblk_idx + inBlk_R_idx][Cblk_idx + inBlk_C_idx] = in_matrix[Cblk_idx + inBlk_C_idx][Rblk_idx + inBlk_R_idx];
                         //temp_mat[inBlk_C_idx * side_size + Cblk_idx * elems_in_row_of_blks + Rblk_idx * TILE_SIDE_SIZE + inBlk_R_idx] = in_matrix[inBlk_R_idx * side_size + Rblk_idx * elems_in_row_of_blks + Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx];

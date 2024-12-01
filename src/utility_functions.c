@@ -29,9 +29,9 @@
 
 
     float* matInitSA(uint64_t side_size){
-        float *M = (float*)malloc(SIZE * SIZE * sizeof(float));
+        float *M = (float*)malloc(side_size * side_size * sizeof(float));
         #ifndef CONST_INIT
-            for(uint64_t i = 0; i < SIZE * SIZE; i++){
+            for(uint64_t i = 0; i < side_size * side_size; i++){
                 M[i] = ((float)(rand() % (RAND_UPB - RAND_LOB + 1) + RAND_LOB)) / DIV_VALUE;
             } //random initialization
         #else
@@ -42,13 +42,13 @@
     }
 
     float** matInitMA(uint64_t side_size){
-        float **M = (float**)malloc(SIZE * sizeof(float*));
-        for(uint64_t i = 0; i < SIZE; i++){
-            M[i] = (float*)malloc(SIZE * sizeof(float));
+        float **M = (float**)malloc(side_size * sizeof(float*));
+        for(uint64_t i = 0; i < side_size; i++){
+            M[i] = (float*)malloc(side_size * sizeof(float));
         }
         #ifndef CONST_INIT
-            for(uint64_t c = 0; c < SIZE; c++){
-                for(uint64_t r = 0; r < SIZE; r++){
+            for(uint64_t c = 0; c < side_size; c++){
+                for(uint64_t r = 0; r < side_size; r++){
                     M[c][r] = ((float)(rand() % (RAND_UPB - RAND_LOB + 1) + RAND_LOB)) / DIV_VALUE; 
                 }
             } //random initialization
@@ -118,6 +118,17 @@
             fprintf(fp, "%"PRIu32":%"PRIu64":%"PRIu64":%015.9f:%015.9f\n", rand_seed, side_size, memory_rw, symCheckTime, matTransposeTime);
             fclose(fp);
         }
+    }
+
+    void freeSA(float *mat){
+        free(mat);
+    }
+
+    void freeMA(float **mat, uint64_t side_size){
+        for(uint64_t i = 0; i < side_size; i++){
+            free(mat[i]);
+        }
+        free(mat);
     }
 
     // ----------------------------------------------------------------------
