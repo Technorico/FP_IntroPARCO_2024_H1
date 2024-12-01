@@ -18,6 +18,9 @@
         #error "Selected TILE_SIDE_SIZE and matrix SIZE are not compatible."
     #endif
     #define UNROLL4_INCREMENT 4
+    #if SIZE % UNROLL4_INCREMENT != 0
+        #error "Selected matrix SIZE is not compatible with UNROLL4_INCREMENT"
+    #endif
     #if TILE_SIDE_SIZE % UNROLL4_INCREMENT != 0
         #error "Selected TILE_SIDE_SIZE is not compatible with UNROLL4_INCREMENT"
     #endif
@@ -310,8 +313,194 @@
         return temp_mat;
     }
 
-    // Implemented checkSymImp and matTransposeImp with "manual partial unroll" as implicit parallelization/optimization technique
+    // Implemented checkSymImp3 and matTransposeImp3 with "manual partial unroll" as implicit parallelization/optimization technique
     bool checkSymImp3SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+        #if DEBUG >= 1
+            printf("Function: %s\n", __func__);
+        #endif
+        bool isSym = true;
+        *wt_start = omp_get_wtime();
+        for(uint64_t c_idx = 0; c_idx < side_size; c_idx++){
+            for(uint64_t r_idx = 0; r_idx < side_size; r_idx += UNROLL4_INCREMENT){
+                if(in_matrix[c_idx * side_size + (r_idx + 0)] != in_matrix[(r_idx + 0) * side_size + c_idx] ||
+                   in_matrix[c_idx * side_size + (r_idx + 1)] != in_matrix[(r_idx + 1) * side_size + c_idx] ||
+                   in_matrix[c_idx * side_size + (r_idx + 2)] != in_matrix[(r_idx + 2) * side_size + c_idx] ||
+                   in_matrix[c_idx * side_size + (r_idx + 3)] != in_matrix[(r_idx + 3) * side_size + c_idx])
+                    isSym = false;
+                #if DEBUG >= 3
+                    printf("UNROLL4 PASS %"PRIu64":\n", inBlk_R_idx % UNROLL4_INCREMENT)
+                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", c_idx, (r_idx + 0), c_idx * side_size + (r_idx + 0), (r_idx + 0), c_idx, (r_idx + 0) * side_size + c_idx);
+                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", c_idx, (r_idx + 1), c_idx * side_size + (r_idx + 1), (r_idx + 1), c_idx, (r_idx + 1) * side_size + c_idx);
+                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", c_idx, (r_idx + 2), c_idx * side_size + (r_idx + 2), (r_idx + 2), c_idx, (r_idx + 2) * side_size + c_idx);
+                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", c_idx, (r_idx + 3), c_idx * side_size + (r_idx + 3), (r_idx + 3), c_idx, (r_idx + 3) * side_size + c_idx);
+                #endif
+            }
+        }
+        *wt_end = omp_get_wtime();
+        return isSym;
+    }
+
+    float* matTransposeImp3SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+        #if DEBUG >= 1
+            printf("Function: %s\n", __func__);
+        #endif
+        float* temp_mat = (float*)malloc(side_size * side_size * sizeof(float));
+        *wt_start = omp_get_wtime();
+        for(uint64_t c_idx = 0; c_idx < side_size; c_idx++){
+            for(uint64_t r_idx = 0; r_idx < side_size; r_idx += UNROLL4_INCREMENT){
+                temp_mat[(r_idx + 0) * side_size + c_idx] = in_matrix[c_idx * side_size + (r_idx + 0)];
+                temp_mat[(r_idx + 1) * side_size + c_idx] = in_matrix[c_idx * side_size + (r_idx + 1)];
+                temp_mat[(r_idx + 2) * side_size + c_idx] = in_matrix[c_idx * side_size + (r_idx + 2)];
+                temp_mat[(r_idx + 3) * side_size + c_idx] = in_matrix[c_idx * side_size + (r_idx + 3)];
+                #if DEBUG >= 3
+                    printf("UNROLL4 PASS %"PRIu64":\n", inBlk_R_idx % UNROLL4_INCREMENT)
+                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", c_idx, (r_idx + 0), c_idx * side_size + (r_idx + 0), (r_idx + 0), c_idx, (r_idx + 0) * side_size + c_idx);
+                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", c_idx, (r_idx + 1), c_idx * side_size + (r_idx + 1), (r_idx + 1), c_idx, (r_idx + 1) * side_size + c_idx);
+                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", c_idx, (r_idx + 2), c_idx * side_size + (r_idx + 2), (r_idx + 2), c_idx, (r_idx + 2) * side_size + c_idx);
+                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", c_idx, (r_idx + 3), c_idx * side_size + (r_idx + 3), (r_idx + 3), c_idx, (r_idx + 3) * side_size + c_idx);
+                #endif
+            }
+        }
+        *wt_end = omp_get_wtime();
+        return temp_mat;
+    }
+
+    bool checkSymImp3MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+        #if DEBUG >= 1
+            printf("Function: %s\n", __func__);
+        #endif
+        bool isSym = true;
+        *wt_start = omp_get_wtime();
+        for(uint64_t c_idx = 0; c_idx < side_size; c_idx++){
+            for(uint64_t r_idx = 0; r_idx < side_size; r_idx += UNROLL4_INCREMENT){
+                if(in_matrix[c_idx][r_idx + 0] != in_matrix[r_idx + 0][c_idx] ||
+                   in_matrix[c_idx][r_idx + 1] != in_matrix[r_idx + 1][c_idx] ||
+                   in_matrix[c_idx][r_idx + 2] != in_matrix[r_idx + 2][c_idx] ||
+                   in_matrix[c_idx][r_idx + 3] != in_matrix[r_idx + 3][c_idx])
+                    isSym = false;
+                #if DEBUG >= 3
+                    printf("UNROLL4 PASS %"PRIu64":\n", inBlk_R_idx % UNROLL4_INCREMENT)
+                    printf("ELEM(%"PRIu64", %"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64")\n", c_idx, (r_idx + 0), (r_idx + 0), c_idx);
+                    printf("ELEM(%"PRIu64", %"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64")\n", c_idx, (r_idx + 1), (r_idx + 1), c_idx);
+                    printf("ELEM(%"PRIu64", %"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64")\n", c_idx, (r_idx + 2), (r_idx + 2), c_idx);
+                    printf("ELEM(%"PRIu64", %"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64")\n", c_idx, (r_idx + 3), (r_idx + 3), c_idx);
+                #endif
+            }
+        }
+        *wt_end = omp_get_wtime();
+        return isSym;
+    }
+
+    float** matTransposeImp3MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+        #if DEBUG >= 1
+            printf("Function: %s\n", __func__);
+        #endif
+        float **temp_mat = (float**)malloc(side_size * sizeof(float*));
+        for(uint64_t i = 0; i < side_size; i++){
+            temp_mat[i] = (float*)malloc(side_size * sizeof(float));
+        }
+        *wt_start = omp_get_wtime();
+        for(uint64_t c_idx = 0; c_idx < side_size; c_idx++){
+            for(uint64_t r_idx = 0; r_idx < side_size; r_idx++){
+                temp_mat[c_idx][r_idx + 0] = in_matrix[r_idx + 0][c_idx];
+                temp_mat[c_idx][r_idx + 1] = in_matrix[r_idx + 1][c_idx];
+                temp_mat[c_idx][r_idx + 2] = in_matrix[r_idx + 2][c_idx];
+                temp_mat[c_idx][r_idx + 3] = in_matrix[r_idx + 3][c_idx];
+                #if DEBUG >= 3
+                    printf("UNROLL4 PASS %"PRIu64":\n", inBlk_R_idx % UNROLL4_INCREMENT)
+                    printf("ELEM(%"PRIu64", %"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64")\n", c_idx, (r_idx + 0), (r_idx + 0), c_idx);
+                    printf("ELEM(%"PRIu64", %"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64")\n", c_idx, (r_idx + 1), (r_idx + 1), c_idx);
+                    printf("ELEM(%"PRIu64", %"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64")\n", c_idx, (r_idx + 2), (r_idx + 2), c_idx);
+                    printf("ELEM(%"PRIu64", %"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64")\n", c_idx, (r_idx + 3), (r_idx + 3), c_idx);
+                #endif
+            }
+        }
+        *wt_end = omp_get_wtime();
+        return temp_mat;
+    }
+
+    // Implemented checkSymImp4 and matTransposeImp4 with "__builtin_expect" as implicit parallelization/optimization technique
+    // __builtin_expect(expression, value_expected)
+
+    bool checkSymImp4SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+        #if DEBUG >= 1
+            printf("Function: %s\n", __func__);
+        #endif
+        bool isSym = true;
+        *wt_start = omp_get_wtime();
+        for(uint64_t c_idx = 0; __builtin_expect(c_idx < side_size, 1); c_idx++){
+            for(uint64_t r_idx = 0; __builtin_expect(r_idx < side_size, 1); r_idx++){
+                if(__builtin_expect(in_matrix[c_idx * side_size + r_idx] != in_matrix[r_idx * side_size + c_idx], 1))
+                    isSym = false;
+                #if DEBUG >= 3
+                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", c_idx, r_idx, c_idx * side_size + r_idx, r_idx, c_idx, r_idx * side_size + c_idx);
+                #endif
+            }
+        }
+        *wt_end = omp_get_wtime();
+        return isSym;
+    }
+
+    float* matTransposeImp4SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+        #if DEBUG >= 1
+            printf("Function: %s\n", __func__);
+        #endif
+        float* temp_mat = (float*)malloc(side_size * side_size * sizeof(float));
+        *wt_start = omp_get_wtime();
+        for(uint64_t c_idx = 0; __builtin_expect(c_idx < side_size, 1); c_idx++){
+            for(uint64_t r_idx = 0; __builtin_expect(r_idx < side_size, 1); r_idx++){
+                temp_mat[r_idx * side_size + c_idx] = in_matrix[c_idx * side_size + r_idx];
+                #if DEBUG >= 3
+                    printf("ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64") REAL-IDX(%"PRIu64")\n", c_idx, r_idx, c_idx * side_size + r_idx, r_idx, c_idx, r_idx * side_size + c_idx);
+                #endif
+            }
+        }
+        *wt_end = omp_get_wtime();
+        return temp_mat;
+    }
+
+    bool checkSymImp4MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+        #if DEBUG >= 1
+            printf("Function: %s\n", __func__);
+        #endif
+        bool isSym = true;
+        *wt_start = omp_get_wtime();
+        for(uint64_t c_idx = 0; __builtin_expect(c_idx < side_size, 1); c_idx++){
+            for(uint64_t r_idx = 0; __builtin_expect(r_idx < side_size, 1); r_idx++){
+                if(__builtin_expect(in_matrix[c_idx][r_idx] != in_matrix[r_idx][c_idx], 1))
+                    isSym = false;
+                #if DEBUG >= 3
+                    printf("ELEM(%"PRIu64", %"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64")\n", c_idx, r_idx, r_idx, c_idx);
+                #endif
+            }
+        }
+        *wt_end = omp_get_wtime();
+        return isSym;
+    }
+
+    float** matTransposeImp4MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+        #if DEBUG >= 1
+            printf("Function: %s\n", __func__);
+        #endif
+        float **temp_mat = (float**)malloc(side_size * sizeof(float*));
+        for(uint64_t i = 0; i < side_size; i++){
+            temp_mat[i] = (float*)malloc(side_size * sizeof(float));
+        }
+        *wt_start = omp_get_wtime();
+        for(uint64_t c_idx = 0; __builtin_expect(c_idx < side_size, 1); c_idx++){
+            for(uint64_t r_idx = 0; __builtin_expect(r_idx < side_size, 1); r_idx++){
+                temp_mat[c_idx][r_idx] = in_matrix[r_idx][c_idx];
+                #if DEBUG >= 3
+                    printf("ELEM(%"PRIu64", %"PRIu64") <|> ELEM(%"PRIu64", %"PRIu64")\n", c_idx, r_idx, r_idx, c_idx);
+                #endif
+            }
+        }
+        *wt_end = omp_get_wtime();
+        return temp_mat;
+    }
+
+    // Implemented checkSymImp5 and matTransposeImp5 with "manual partial unroll" and "tiling" as implicit parallelization/optimization techniques
+    bool checkSymImp5SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
@@ -349,7 +538,7 @@
         return isSym;
     }
 
-    float* matTransposeImp3SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    float* matTransposeImp5SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
@@ -386,7 +575,7 @@
         return temp_mat;
     }
 
-    bool checkSymImp3MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    bool checkSymImp5MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
@@ -422,7 +611,7 @@
         return isSym;
     }
 
-    float** matTransposeImp3MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    float** matTransposeImp5MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
@@ -459,6 +648,5 @@
         *wt_end = omp_get_wtime();
         return temp_mat;
     }
-
-    // Implemented checkSymImp and matTransposeImp with "__builtin_expect" as implicit parallelization/optimization technique
+    
 #endif
