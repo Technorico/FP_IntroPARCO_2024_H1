@@ -23,17 +23,6 @@ DEBUG DEFINE can assume multiple values(0, 1, 2, 3):
 #endif
 // #define CONST_INIT
 
-#define MAT_TYPE float*
-#define MAT_INIT_FUNC matInitSA
-#define MAT_PRINT_FUNC matPrintSA
-#define MAT_CHECKEQ_FUNC matCheckEqualitySA
-#define MAT_FREE_FUNC(mat) freeSA(mat)
-//#define MAT_FREE_FUNC(mat) freeMA(mat, SIZE)
-
-#define MAT_TRANSPOSE_FUNC matTransposeImp5SA
-#define MAT_CHECKSYM_FUNC checkSymImp5SA
-#define MAT_COMP_TRANSPOSE_FUNC matTransposeSA
-
 // ------------------------------- INCLUDES ------------------------------
 
 #include <stdio.h>
@@ -44,6 +33,20 @@ DEBUG DEFINE can assume multiple values(0, 1, 2, 3):
 #include <time.h>
 #include "utility_functions.c"
 #include "imp_functions.c"
+#include "base_functions.c"
+
+// ------------------ IMPLEMENTATION SELECTION DEFINES -------------------
+
+#define MAT_TYPE float*
+#define MAT_INIT_FUNC matInitSA
+#define MAT_PRINT_FUNC matPrintSA
+#define MAT_CHECKEQ_FUNC matCheckEqualitySA
+#define MAT_FREE_FUNC(mat) freeSA(mat)
+//#define MAT_FREE_FUNC(mat) freeMA(mat, SIZE)
+
+#define MAT_TRANSPOSE_FUNC matTransposeImp5SA
+#define MAT_CHECKSYM_FUNC checkSymImp5SA
+#define MAT_COMP_TRANSPOSE_FUNC matTransposeSA
 
 // --------------------------------- MAIN --------------------------------
 
