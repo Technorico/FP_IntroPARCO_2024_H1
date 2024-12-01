@@ -14,6 +14,13 @@
         //This is the optimal size for having a tile row loaded within a single cache line
         //cache_line_size_in_bytes / sizeof(float) = TILE_TOTAL_SIZE | 64 / 4 = 16 elements
     #endif
+    #if SIZE % TILE_SIDE_SIZE != 0
+        #error "Selected TILE_SIDE_SIZE and matrix SIZE are not compatible."
+    #endif
+    #define UNROLL4_INCREMENT 4
+    #if TILE_SIDE_SIZE % UNROLL4_INCREMENT != 0
+        #error "Selected TILE_SIDE_SIZE is not compatible with UNROLL4_INCREMENT"
+    #endif
 
     // ------------------------------- INCLUDES ------------------------------
 
@@ -241,7 +248,6 @@
                         //Read index calculated as: Rblk_idx * TILE_SIDE_SIZE + inBlk_R_idx + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size
                         //Write index calculated as: Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + inBlk_R_idx * side_size
                         temp_mat[Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + inBlk_R_idx * side_size] = in_matrix[Rblk_idx * TILE_SIDE_SIZE + inBlk_R_idx + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size];
-                        temp_mat[Rblk_idx * TILE_SIDE_SIZE + inBlk_R_idx + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size] = in_matrix[Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + inBlk_R_idx * side_size];
                     }
                 }
             }
@@ -296,7 +302,6 @@
                             printf("TBlock C|R - TInBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Rblk_idx, Cblk_idx, inBlk_R_idx, inBlk_C_idx);
                         #endif
                         temp_mat[Rblk_idx + inBlk_R_idx][Cblk_idx + inBlk_C_idx] = in_matrix[Cblk_idx + inBlk_C_idx][Rblk_idx + inBlk_R_idx];
-                        //temp_mat[inBlk_C_idx * side_size + Cblk_idx * elems_in_row_of_blks + Rblk_idx * TILE_SIDE_SIZE + inBlk_R_idx] = in_matrix[inBlk_R_idx * side_size + Rblk_idx * elems_in_row_of_blks + Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx];
                     }
                 }
             }
@@ -306,6 +311,154 @@
     }
 
     // Implemented checkSymImp and matTransposeImp with "manual partial unroll" as implicit parallelization/optimization technique
+    bool checkSymImp3SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+        #if DEBUG >= 1
+            printf("Function: %s\n", __func__);
+        #endif
+        bool isSym = true;
+        *wt_start = omp_get_wtime();
+        uint64_t n_side_blocks = side_size / TILE_SIDE_SIZE;
+        uint64_t elems_in_row_of_blks = n_side_blocks * TILE_SIDE_SIZE * TILE_SIDE_SIZE;
+        for(uint64_t Cblk_idx = 0; Cblk_idx < n_side_blocks; Cblk_idx++){   
+            for(uint64_t Rblk_idx = 0; Rblk_idx < n_side_blocks; Rblk_idx++){
+                for(uint64_t inBlk_C_idx = 0; inBlk_C_idx < TILE_SIDE_SIZE; inBlk_C_idx++){
+                    for(uint64_t inBlk_R_idx = 0; inBlk_R_idx < TILE_SIDE_SIZE; inBlk_R_idx += UNROLL4_INCREMENT){
+                        #if DEBUG >= 3
+                            printf("UNROLL4 PASS %"PRIu64":\n", inBlk_R_idx % UNROLL4_INCREMENT)
+                            printf("Block C|R - InBlock C|R - Real Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, (inBlk_R_idx + 0), Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + (inBlk_R_idx + 0) * side_size);
+                            printf("TBlock C|R - TInBlock C|R - TReal Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Rblk_idx, Cblk_idx, (inBlk_R_idx + 0), inBlk_C_idx, Rblk_idx * TILE_SIDE_SIZE + (inBlk_R_idx + 0) + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size);
+                            printf("Block C|R - InBlock C|R - Real Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, (inBlk_R_idx + 1), Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + (inBlk_R_idx + 1) * side_size);
+                            printf("TBlock C|R - TInBlock C|R - TReal Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Rblk_idx, Cblk_idx, (inBlk_R_idx + 1), inBlk_C_idx, Rblk_idx * TILE_SIDE_SIZE + (inBlk_R_idx + 1) + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size);
+                            printf("Block C|R - InBlock C|R - Real Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, (inBlk_R_idx + 2), Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + (inBlk_R_idx + 2) * side_size);
+                            printf("TBlock C|R - TInBlock C|R - TReal Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Rblk_idx, Cblk_idx, (inBlk_R_idx + 2), inBlk_C_idx, Rblk_idx * TILE_SIDE_SIZE + (inBlk_R_idx + 2) + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size);
+                            printf("Block C|R - InBlock C|R - Real Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, (inBlk_R_idx + 3), Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + (inBlk_R_idx + 3) * side_size);
+                            printf("TBlock C|R - TInBlock C|R - TReal Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Rblk_idx, Cblk_idx, (inBlk_R_idx + 3), inBlk_C_idx, Rblk_idx * TILE_SIDE_SIZE + (inBlk_R_idx + 3) + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size);
+                        #endif
+                        //Read index calculated as: Rblk_idx * TILE_SIDE_SIZE + inBlk_R_idx + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size
+                        //Read transposed index calculated as: Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + inBlk_R_idx * side_size
+                        if(in_matrix[Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + (inBlk_R_idx + 0) * side_size] != in_matrix[Rblk_idx * TILE_SIDE_SIZE + (inBlk_R_idx + 0) + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size] ||
+                           in_matrix[Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + (inBlk_R_idx + 1) * side_size] != in_matrix[Rblk_idx * TILE_SIDE_SIZE + (inBlk_R_idx + 1) + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size] ||
+                           in_matrix[Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + (inBlk_R_idx + 2) * side_size] != in_matrix[Rblk_idx * TILE_SIDE_SIZE + (inBlk_R_idx + 2) + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size] ||
+                           in_matrix[Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + (inBlk_R_idx + 3) * side_size] != in_matrix[Rblk_idx * TILE_SIDE_SIZE + (inBlk_R_idx + 3) + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size])
+                            isSym = false;
+                    }
+                }
+            }
+        }
+        *wt_end = omp_get_wtime();
+        return isSym;
+    }
+
+    float* matTransposeImp3SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+        #if DEBUG >= 1
+            printf("Function: %s\n", __func__);
+        #endif
+        float* temp_mat = (float*)malloc(side_size * side_size * sizeof(float));
+        *wt_start = omp_get_wtime();
+        uint64_t n_side_blocks = side_size / TILE_SIDE_SIZE;
+        uint64_t elems_in_row_of_blks = n_side_blocks * TILE_SIDE_SIZE * TILE_SIDE_SIZE;
+        for(uint64_t Cblk_idx = 0; Cblk_idx < n_side_blocks; Cblk_idx++){
+            for(uint64_t Rblk_idx = 0; Rblk_idx < n_side_blocks; Rblk_idx++){
+                for(uint64_t inBlk_C_idx = 0; inBlk_C_idx < TILE_SIDE_SIZE; inBlk_C_idx++){
+                    for(uint64_t inBlk_R_idx = inBlk_C_idx; inBlk_R_idx < TILE_SIDE_SIZE; inBlk_R_idx += UNROLL4_INCREMENT){
+                        #if DEBUG >= 3
+                            printf("UNROLL4 PASS %"PRIu64":\n", inBlk_R_idx % UNROLL4_INCREMENT)
+                            printf("Block C|R - InBlock C|R - Real Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, (inBlk_R_idx + 0), Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + (inBlk_R_idx + 0) * side_size);
+                            printf("TBlock C|R - TInBlock C|R - TReal Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Rblk_idx, Cblk_idx, (inBlk_R_idx + 0), inBlk_C_idx, Rblk_idx * TILE_SIDE_SIZE + (inBlk_R_idx + 0) + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size);
+                            printf("Block C|R - InBlock C|R - Real Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, (inBlk_R_idx + 1), Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + (inBlk_R_idx + 1) * side_size);
+                            printf("TBlock C|R - TInBlock C|R - TReal Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Rblk_idx, Cblk_idx, (inBlk_R_idx + 1), inBlk_C_idx, Rblk_idx * TILE_SIDE_SIZE + (inBlk_R_idx + 1) + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size);
+                            printf("Block C|R - InBlock C|R - Real Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, (inBlk_R_idx + 2), Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + (inBlk_R_idx + 2) * side_size);
+                            printf("TBlock C|R - TInBlock C|R - TReal Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Rblk_idx, Cblk_idx, (inBlk_R_idx + 2), inBlk_C_idx, Rblk_idx * TILE_SIDE_SIZE + (inBlk_R_idx + 2) + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size);
+                            printf("Block C|R - InBlock C|R - Real Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, (inBlk_R_idx + 3), Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + (inBlk_R_idx + 3) * side_size);
+                            printf("TBlock C|R - TInBlock C|R - TReal Idx: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64" - %"PRIu64"\n", Rblk_idx, Cblk_idx, (inBlk_R_idx + 3), inBlk_C_idx, Rblk_idx * TILE_SIDE_SIZE + (inBlk_R_idx + 3) + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size);
+                        #endif
+                        //Read index calculated as: Rblk_idx * TILE_SIDE_SIZE + inBlk_R_idx + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size
+                        //Write index calculated as: Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + inBlk_R_idx * side_size
+                        temp_mat[Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + (inBlk_R_idx + 0) * side_size] = in_matrix[Rblk_idx * TILE_SIDE_SIZE + (inBlk_R_idx + 0) + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size];
+                        temp_mat[Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + (inBlk_R_idx + 1) * side_size] = in_matrix[Rblk_idx * TILE_SIDE_SIZE + (inBlk_R_idx + 1) + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size];
+                        temp_mat[Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + (inBlk_R_idx + 2) * side_size] = in_matrix[Rblk_idx * TILE_SIDE_SIZE + (inBlk_R_idx + 2) + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size];
+                        temp_mat[Cblk_idx * TILE_SIDE_SIZE + inBlk_C_idx + Rblk_idx * elems_in_row_of_blks + (inBlk_R_idx + 3) * side_size] = in_matrix[Rblk_idx * TILE_SIDE_SIZE + (inBlk_R_idx + 3) + Cblk_idx * elems_in_row_of_blks + inBlk_C_idx * side_size];
+                    }
+                }
+            }
+        }
+        *wt_end = omp_get_wtime();
+        return temp_mat;
+    }
+
+    bool checkSymImp3MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+        #if DEBUG >= 1
+            printf("Function: %s\n", __func__);
+        #endif
+        bool isSym = true;
+        *wt_start = omp_get_wtime();
+        uint64_t n_side_blocks = side_size / TILE_SIDE_SIZE;
+        uint64_t elems_in_row_of_blks = n_side_blocks * TILE_SIDE_SIZE * TILE_SIDE_SIZE;
+        for(uint64_t Cblk_idx = 0; Cblk_idx < side_size; Cblk_idx+=TILE_SIDE_SIZE){   
+            for(uint64_t Rblk_idx = 0; Rblk_idx < side_size; Rblk_idx+=TILE_SIDE_SIZE){
+                for(uint64_t inBlk_C_idx = 0; inBlk_C_idx < TILE_SIDE_SIZE; inBlk_C_idx++){
+                    for(uint64_t inBlk_R_idx = 0; inBlk_R_idx < TILE_SIDE_SIZE; inBlk_R_idx += UNROLL4_INCREMENT){
+                        #if DEBUG >= 3
+                            printf("UNROLL4 PASS %"PRIu64":\n", inBlk_R_idx % UNROLL4_INCREMENT)
+                            printf("Block C|R - InBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, (inBlk_R_idx + 0));
+                            printf("TBlock C|R - TInBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Rblk_idx, Cblk_idx, (inBlk_R_idx + 0), inBlk_C_idx);
+                            printf("Block C|R - InBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, (inBlk_R_idx + 1));
+                            printf("TBlock C|R - TInBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Rblk_idx, Cblk_idx, (inBlk_R_idx + 1), inBlk_C_idx);
+                            printf("Block C|R - InBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, (inBlk_R_idx + 2));
+                            printf("TBlock C|R - TInBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Rblk_idx, Cblk_idx, (inBlk_R_idx + 2), inBlk_C_idx);
+                            printf("Block C|R - InBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, (inBlk_R_idx + 3));
+                            printf("TBlock C|R - TInBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Rblk_idx, Cblk_idx, (inBlk_R_idx + 3), inBlk_C_idx);
+                        #endif
+                        if(in_matrix[Rblk_idx + (inBlk_R_idx + 0)][Cblk_idx + inBlk_C_idx] != in_matrix[Cblk_idx + inBlk_C_idx][Rblk_idx + (inBlk_R_idx + 0)] ||
+                           in_matrix[Rblk_idx + (inBlk_R_idx + 1)][Cblk_idx + inBlk_C_idx] != in_matrix[Cblk_idx + inBlk_C_idx][Rblk_idx + (inBlk_R_idx + 1)] ||
+                           in_matrix[Rblk_idx + (inBlk_R_idx + 2)][Cblk_idx + inBlk_C_idx] != in_matrix[Cblk_idx + inBlk_C_idx][Rblk_idx + (inBlk_R_idx + 2)] ||
+                           in_matrix[Rblk_idx + (inBlk_R_idx + 3)][Cblk_idx + inBlk_C_idx] != in_matrix[Cblk_idx + inBlk_C_idx][Rblk_idx + (inBlk_R_idx + 3)])
+                            isSym = false;
+                    }
+                }
+            }
+        }
+        *wt_end = omp_get_wtime();
+        return isSym;
+    }
+
+    float** matTransposeImp3MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+        #if DEBUG >= 1
+            printf("Function: %s\n", __func__);
+        #endif
+        float **temp_mat = (float**)malloc(side_size * sizeof(float*));
+        for(uint64_t i = 0; i < side_size; i++){
+            temp_mat[i] = (float*)malloc(side_size * sizeof(float));
+        }
+        *wt_start = omp_get_wtime();
+        uint64_t n_side_blocks = side_size / TILE_SIDE_SIZE;
+        uint64_t elems_in_row_of_blks = n_side_blocks * TILE_SIDE_SIZE * TILE_SIDE_SIZE;
+        for(uint64_t Cblk_idx = 0; Cblk_idx < side_size; Cblk_idx+=TILE_SIDE_SIZE){   
+            for(uint64_t Rblk_idx = 0; Rblk_idx < side_size; Rblk_idx+=TILE_SIDE_SIZE){
+                for(uint64_t inBlk_C_idx = 0; inBlk_C_idx < TILE_SIDE_SIZE; inBlk_C_idx++){
+                    for(uint64_t inBlk_R_idx = 0; inBlk_R_idx < TILE_SIDE_SIZE; inBlk_R_idx++){
+                        #if DEBUG >= 3
+                            printf("UNROLL4 PASS %"PRIu64":\n", inBlk_R_idx % UNROLL4_INCREMENT)
+                            printf("Block C|R - InBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, (inBlk_R_idx + 0));
+                            printf("TBlock C|R - TInBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Rblk_idx, Cblk_idx, (inBlk_R_idx + 0), inBlk_C_idx);
+                            printf("Block C|R - InBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, (inBlk_R_idx + 1));
+                            printf("TBlock C|R - TInBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Rblk_idx, Cblk_idx, (inBlk_R_idx + 1), inBlk_C_idx);
+                            printf("Block C|R - InBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, (inBlk_R_idx + 2));
+                            printf("TBlock C|R - TInBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Rblk_idx, Cblk_idx, (inBlk_R_idx + 2), inBlk_C_idx);
+                            printf("Block C|R - InBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Cblk_idx, Rblk_idx, inBlk_C_idx, (inBlk_R_idx + 3));
+                            printf("TBlock C|R - TInBlock C|R: %"PRIu64"|%"PRIu64" - %"PRIu64"|%"PRIu64"\n", Rblk_idx, Cblk_idx, (inBlk_R_idx + 3), inBlk_C_idx);
+                        #endif
+                        temp_mat[Rblk_idx + (inBlk_R_idx + 0)][Cblk_idx + inBlk_C_idx] = in_matrix[Cblk_idx + inBlk_C_idx][Rblk_idx + (inBlk_R_idx + 0)];
+                        temp_mat[Rblk_idx + (inBlk_R_idx + 1)][Cblk_idx + inBlk_C_idx] = in_matrix[Cblk_idx + inBlk_C_idx][Rblk_idx + (inBlk_R_idx + 1)];
+                        temp_mat[Rblk_idx + (inBlk_R_idx + 2)][Cblk_idx + inBlk_C_idx] = in_matrix[Cblk_idx + inBlk_C_idx][Rblk_idx + (inBlk_R_idx + 2)];
+                        temp_mat[Rblk_idx + (inBlk_R_idx + 3)][Cblk_idx + inBlk_C_idx] = in_matrix[Cblk_idx + inBlk_C_idx][Rblk_idx + (inBlk_R_idx + 3)];
+                    }
+                }
+            }
+        }
+        *wt_end = omp_get_wtime();
+        return temp_mat;
+    }
 
     // Implemented checkSymImp and matTransposeImp with "__builtin_expect" as implicit parallelization/optimization technique
 #endif
