@@ -90,7 +90,7 @@ int main() {
 
     //Append to RESULT_CSV_PATH the results of the run
     #if DEBUG >= 0
-        saveResults(RESULT_CSV_PATH, rand_seed, SIZE, memory_rw, symCheckTime, matTransposeTime);
+        saveResults(RESULT_CSV_PATH, rand_seed, SIZE, memory_rw, 0, symCheckTime, matTransposeTime);
     #endif
     #if DEBUG >= 1
         printf("The two matrices are equal? -> %s\n", (MAT_CHECKEQ_FUNC(T, TCheck, SIZE)?"True":"False"));

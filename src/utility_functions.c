@@ -111,13 +111,13 @@
         return equal;
     }
 
-    void saveResults(char *file_path, uint32_t rand_seed, uint64_t side_size, uint64_t memory_rw, float symCheckTime, float matTransposeTime){
+    void saveResults(char *file_path, uint32_t rand_seed, uint64_t side_size, uint64_t memory_rw, uint64_t n_of_threads, float symCheckTime, float matTransposeTime){
         FILE *fp = fopen(file_path, "a");
         if(fp == NULL){
             printf("\e[91;1mCould NOT open the file!!\e[0m\n");
         }
         else{
-            fprintf(fp, "%"PRIu32":%"PRIu64":%"PRIu64":%015.9f:%015.9f\n", rand_seed, side_size, memory_rw, symCheckTime, matTransposeTime);
+            fprintf(fp, "%"PRIu32":%"PRIu64":%"PRIu64":%"PRIu64":%015.9f:%015.9f\n", rand_seed, side_size, memory_rw, n_of_threads, symCheckTime, matTransposeTime);
             fclose(fp);
         }
     }
