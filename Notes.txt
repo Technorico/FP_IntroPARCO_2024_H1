@@ -1,0 +1,10 @@
+I noticed that my implementation of matTranspose is faster than my implementation of checksym when the matrix is very small (like 5x5)
+valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all ./build/exec
+valgrind --tool=cachegrind ./build/exec
+sudo perf stat -e cache-misses,cache-references ./build/exec
+cat /sys/devices/system/cpu/cpu0/cache/index*/coherency_line_size
+/\ For my CPU this is 64B
+In options.opt there are the same optimization of -O2, without the -ftree-loop-vectorize and -ftree-slp-vectorize.
+They can be turned on together by -ftree-vectorize
+
+gcc -Q --help=optimizer
