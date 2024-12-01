@@ -28,8 +28,8 @@ DEBUG DEFINE can assume multiple values(0, 1, 2, 3):
 
 #define FIXED_VALUE 32.6
 
-#define MAT_TRANSPOSE_FUNC matTranspose
-#define CHECK_SYM_FUNC checkSym
+#define MAT_TRANSPOSE_FUNC matTransposeImp1
+#define CHECK_SYM_FUNC checkSymImp1
 
 // ------------------------------- INCLUDES ------------------------------
 
