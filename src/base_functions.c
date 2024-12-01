@@ -85,11 +85,11 @@
         return isSym;
     }
 
-    float* matTransposeMA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    float** matTransposeMA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
-        float** temp_mat = (float*)malloc(side_size * side_size * sizeof(float));
+        float **temp_mat = (float**)malloc(side_size * sizeof(float*));
         for(uint64_t i = 0; i < side_size; i++){
             temp_mat[i] = (float*)malloc(side_size * sizeof(float));
         }
@@ -170,11 +170,11 @@
         return isSym;
     }
 
-    float* matTransposeImp1MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    float** matTransposeImp1MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
-        float** temp_mat = (float*)malloc(side_size * side_size * sizeof(float));
+        float** temp_mat = (float**)malloc(side_size * sizeof(float*));
         for(uint64_t i = 0; i < side_size; i++){
             temp_mat[i] = (float*)malloc(side_size * sizeof(float));
         }

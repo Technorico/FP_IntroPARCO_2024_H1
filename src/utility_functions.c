@@ -39,6 +39,7 @@
                 M[i] = FIXED_VALUE;
             } //fixed initialization
         #endif
+        return M;
     }
 
     float** matInitMA(uint64_t side_size){
@@ -59,10 +60,11 @@
                 }
             } //fixed initialization
         #endif
+        return M;
     }
 
     void matPrintSA(float *in_matrix, uint64_t side_size){
-        uint64_t total_size = side_size*side_size;
+        uint64_t total_size = side_size * side_size;
         for(uint64_t i = 0; i < total_size; i++){
             printf("%10.3f", in_matrix[i]);
             if(0 == (i + 1) % side_size){
