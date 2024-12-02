@@ -3,20 +3,18 @@
 
     // ------------------------------- DEFINES -------------------------------
 
-    #ifndef DEBUG
-        #define DEBUG 0
-    #endif
-    #ifndef RESULT_CSV_PATH
-        #define RESULT_CSV_PATH "./results.csv"
-    #endif
     #ifndef EQ_OFFSET
         #define EQ_OFFSET 0.02
     #endif
+    #ifndef FIXED_VALUE
+        #define FIXED_VALUE 32.6
+    #endif
 
-    #define FIXED_VALUE 32.6
     #define RAND_LOB -1000000
     #define RAND_UPB 1000000
     #define DIV_VALUE 1000.0
+
+    // #define CONST_INIT
 
     // ------------------------------- INCLUDES ------------------------------
 

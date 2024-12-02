@@ -4,20 +4,21 @@
     // ------------------------------- DEFINES -------------------------------
 
     #ifndef DEBUG
-        #define DEBUG 0
+        #define DEBUG 1
     #endif
-    #ifndef PREFETCH_OFFSET
-        #define PREFETCH_OFFSET 5
-    #endif
+    #define UNROLL4_INCREMENT 4
     #ifndef TILE_SIDE_SIZE
         #define TILE_SIDE_SIZE 16
         //This is the optimal size for having a tile row loaded within a single cache line
         //cache_line_size_in_bytes / sizeof(float) = TILE_TOTAL_SIZE | 64 / 4 = 16 elements
     #endif
+    //The SIZE is in reality the side size of the matrix, so it's like SIZExSIZE 
+#ifndef SIZE
+        #define SIZE 16
+    #endif
     #if SIZE % TILE_SIDE_SIZE != 0
         #error "Selected TILE_SIDE_SIZE and matrix SIZE are not compatible."
     #endif
-    #define UNROLL4_INCREMENT 4
     #if SIZE % UNROLL4_INCREMENT != 0
         #error "Selected matrix SIZE is not compatible with UNROLL4_INCREMENT"
     #endif

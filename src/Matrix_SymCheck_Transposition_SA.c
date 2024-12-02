@@ -2,15 +2,15 @@
 // ------------------------------- DEFINES -------------------------------
 
 #ifndef DEBUG
-    #define DEBUG 0
+    #define DEBUG 1
 #endif
-#ifndef SIZE //The SIZE is in reality the side size of the matrix, so it's like SIZExSIZE 
+//The SIZE is in reality the side size of the matrix, so it's like SIZExSIZE 
+#ifndef SIZE
     #define SIZE 16
 #endif
 #ifndef RESULT_CSV_PATH
     #define RESULT_CSV_PATH "./results.csv"
 #endif
-// #define CONST_INIT
 
 // ------------------------------- INCLUDES ------------------------------
 
