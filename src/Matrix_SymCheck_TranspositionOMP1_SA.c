@@ -21,21 +21,21 @@
 #include <omp.h>
 #include <time.h>
 #include "utility_functions.c"
-#include "exp_functions.c"
+#include "omp_functions.c"
 #include "base_functions.c"
 
 // ------------------ IMPLEMENTATION SELECTION DEFINES -------------------
 
-#define MAT_TYPE float**
-#define MAT_INIT_FUNC matInitMA
-#define MAT_PRINT_FUNC matPrintMA
-#define MAT_CHECKEQ_FUNC matCheckEqualityMA
-//#define MAT_FREE_FUNC(mat) freeSA(mat)
-#define MAT_FREE_FUNC(mat) freeMA(mat, SIZE)
+#define MAT_TYPE float*
+#define MAT_INIT_FUNC matInitSA
+#define MAT_PRINT_FUNC matPrintSA
+#define MAT_CHECKEQ_FUNC matCheckEqualitySA
+#define MAT_FREE_FUNC(mat) freeSA(mat)
+//#define MAT_FREE_FUNC(mat) freeMA(mat, SIZE)
 
-#define MAT_TRANSPOSE_FUNC matTransposeExp3MA
-#define MAT_CHECKSYM_FUNC checkSymExp3MA
-#define MAT_COMP_TRANSPOSE_FUNC matTransposeMA
+#define MAT_TRANSPOSE_FUNC matTransposeOMP1SA
+#define MAT_CHECKSYM_FUNC checkSymOMP1SA
+#define MAT_COMP_TRANSPOSE_FUNC matTransposeSA
 
 // --------------------------------- MAIN --------------------------------
 

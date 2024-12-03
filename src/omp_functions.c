@@ -40,8 +40,8 @@
 
     // ---------------------- Function Implementations ----------------------
 
-    // Implemented checkSymExp1 and matTransposeExp1 with "OpenMP" as parallelization/optimization technique
-    bool checkSymExp1SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    // Implemented checkSymOMP1 and matTransposeOMP1 with "OpenMP" as parallelization/optimization technique
+    bool checkSymOMP1SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
@@ -67,7 +67,7 @@
         return isSym;
     }
 
-    float* matTransposeExp1SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    float* matTransposeOMP1SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
@@ -89,7 +89,7 @@
         return temp_mat;
     }
 
-    bool checkSymExp1MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    bool checkSymOMP1MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
@@ -115,7 +115,7 @@
         return isSym;
     }
 
-    float** matTransposeExp1MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    float** matTransposeOMP1MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
@@ -140,8 +140,8 @@
         return temp_mat;
     }
 
-    // Implemented checkSymExp2 and matTransposeExp2 with "OpenMP", "tiling/blocking" and "collapse(2) directive" as parallelization/optimization technique
-    bool checkSymExp2SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    // Implemented checkSymOMP2 and matTransposeOMP2 with "OpenMP", "tiling/blocking" and "collapse(2) directive" as parallelization/optimization technique
+    bool checkSymOMP2SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
@@ -176,7 +176,7 @@
         return isSym;
     }
 
-    float* matTransposeExp2SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    float* matTransposeOMP2SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
@@ -207,7 +207,7 @@
         return temp_mat;
     }
 
-    bool checkSymExp2MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    bool checkSymOMP2MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
@@ -240,7 +240,7 @@
         return isSym;
     }
 
-    float** matTransposeExp2MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    float** matTransposeOMP2MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
@@ -272,8 +272,8 @@
         return temp_mat;
     }
 
-    // Implemented checkSymExp3 and matTransposeExp3 with "OpenMP", "tiling/blocking" and "collapse(4) directive" as parallelization/optimization technique
-    bool checkSymExp3SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    // Implemented checkSymOMP3 and matTransposeOMP3 with "OpenMP", "tiling/blocking" and "collapse(4) directive" as parallelization/optimization technique
+    bool checkSymOMP3SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
@@ -308,7 +308,7 @@
         return isSym;
     }
 
-    float* matTransposeExp3SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    float* matTransposeOMP3SA(float *in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
@@ -339,7 +339,7 @@
         return temp_mat;
     }
 
-    bool checkSymExp3MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    bool checkSymOMP3MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif
@@ -372,7 +372,7 @@
         return isSym;
     }
 
-    float** matTransposeExp3MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
+    float** matTransposeOMP3MA(float **in_matrix, uint64_t side_size, double *wt_start, double *wt_end){
         #if DEBUG >= 1
             printf("Function: %s\n", __func__);
         #endif

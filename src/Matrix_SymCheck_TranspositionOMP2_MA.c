@@ -21,7 +21,7 @@
 #include <omp.h>
 #include <time.h>
 #include "utility_functions.c"
-#include "exp_functions.c"
+#include "omp_functions.c"
 #include "base_functions.c"
 
 // ------------------ IMPLEMENTATION SELECTION DEFINES -------------------
@@ -33,8 +33,8 @@
 //#define MAT_FREE_FUNC(mat) freeSA(mat)
 #define MAT_FREE_FUNC(mat) freeMA(mat, SIZE)
 
-#define MAT_TRANSPOSE_FUNC matTransposeExp1MA
-#define MAT_CHECKSYM_FUNC checkSymExp1MA
+#define MAT_TRANSPOSE_FUNC matTransposeOMP2MA
+#define MAT_CHECKSYM_FUNC checkSymOMP2MA
 #define MAT_COMP_TRANSPOSE_FUNC matTransposeMA
 
 // --------------------------------- MAIN --------------------------------
