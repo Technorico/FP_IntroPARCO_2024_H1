@@ -49,7 +49,7 @@ _I decided to use this way to make things configurable, because of this approach
 _In this way, *DEBUG* settings and *SIZE* become known at compile time, simplifying the compiler's job and avoiding losing time on conditional prints or whatever depends on static user decisions._
 
 Currently, these are the important DEFINES/MACRO inside the project
-| Name                | Default Value        | Modifiability | Files                                      | Description                                                                                                                    |
+| Name                | Default&nbsp;Value   | Modifiability | Files                                      | Description &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                                                                   |
 | :------------------ | :------------------: | :-----------: | :----------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------- |
 | SIZE                | 16                   | COMPILATION   | Matrix_SymCheck_Transposition\*.c<br>exp_functions.c<br>imp_functions.c<br> | Defines the side size of the matrix. Total size is given by _SIZE \* SIZE_                    |
 | DEBUG               | 1                    | COMPILATION   | !utility_functions.c                       | Defines the level of debug verbosity of the program                                                                            |
