@@ -1,0 +1,77 @@
+#!/bin/bash
+# Job name
+#PBS -N FP_H1
+# Output files
+#PBS -o ./FP_H1.o
+#PBS -e ./FP_H1.e
+# Queue name
+#PBS -q short_cpuQ
+# Set the maximum wall time
+#PBS -l walltime=1:00:00
+# Number of nodes, cpus, mpi processors and amount of memory
+#PBS -l select=1:ncpus=96:ompthreads=96:mem=1mb
+
+# --- Machine info ---
+# Print date infos
+date
+
+# Print lscpu infos
+lscpus
+
+# Print hostname of machine
+hostname
+
+# --- Enviroment preparation ---
+# Modules for C
+module load gcc91
+gcc() {
+    gcc-9.1.0 "$@"
+}
+gcc --version
+
+# Select the working directory
+cd /home/federico.peruzzo/2024_2025/Deliverables/First/FP_IntroPARCO_2024_H1/
+
+# Create "build" directory
+mkdir build
+
+# --- Sequential Naive implementations ---
+gcc ./src/Matrix_SymCheck_TranspositionImp1_SA.c -o ./build/exec_imp1_ma -D SIZE=64 -D DEBUG=0 -fopenmp
+gcc ./src/Matrix_SymCheck_TranspositionImp1_MA.c -o ./build/exec_imp1_ma -D SIZE=64 -D DEBUG=0 -fopenmp
+
+# --- Sequential Naive implementations ---
+gcc ./src/Matrix_SymCheck_TranspositionImp1_SA.c -o ./build/exec_imp1_ma -D SIZE=64 -D DEBUG=0 -fopenmp
+gcc ./src/Matrix_SymCheck_TranspositionImp1_MA.c -o ./build/exec_imp1_ma -D SIZE=64 -D DEBUG=0 -fopenmp
+gcc ./src/Matrix_SymCheck_TranspositionImp2_SA.c -o ./build/exec_imp1_ma -D SIZE=64 -D DEBUG=0 -fopenmp
+gcc ./src/Matrix_SymCheck_TranspositionImp2_MA.c -o ./build/exec_imp1_ma -D SIZE=64 -D DEBUG=0 -fopenmp
+gcc ./src/Matrix_SymCheck_TranspositionImp3_SA.c -o ./build/exec_imp1_ma -D SIZE=64 -D DEBUG=0 -fopenmp
+gcc ./src/Matrix_SymCheck_TranspositionImp3_MA.c -o ./build/exec_imp1_ma -D SIZE=64 -D DEBUG=0 -fopenmp
+gcc ./src/Matrix_SymCheck_TranspositionImp4_SA.c -o ./build/exec_imp1_ma -D SIZE=64 -D DEBUG=0 -fopenmp
+gcc ./src/Matrix_SymCheck_TranspositionImp4_MA.c -o ./build/exec_imp1_ma -D SIZE=64 -D DEBUG=0 -fopenmp
+gcc ./src/Matrix_SymCheck_TranspositionImp5_SA.c -o ./build/exec_imp1_ma -D SIZE=64 -D DEBUG=0 -fopenmp
+gcc ./src/Matrix_SymCheck_TranspositionImp5_MA.c -o ./build/exec_imp1_ma -D SIZE=64 -D DEBUG=0 -fopenmp
+
+
+for n_processor in 1 2 4 8 16 32 64
+do
+    for i in {0..15}
+    do
+        if [ $iteration -gt $start_iteration ]
+		then
+			#export OMP_NUM_THREADS=$n_processor; ./MatrixMultiplication.out 100 100 100 100 >> $OUTPUT_FILE
+            #export OMP_NUM_THREADS=$n_processor; ./MatrixMultiplication.out 200 200 200 200 >> $OUTPUT_FILE
+            #export OMP_NUM_THREADS=$n_processor; ./MatrixMultiplication.out 500 100 100 500 >> $OUTPUT_FILE
+            #export OMP_NUM_THREADS=$n_processor; ./MatrixMultiplication.out 500 500 500 500 >> $OUTPUT_FILE
+            #export OMP_NUM_THREADS=$n_processor; ./MatrixMultiplication.out 1000 1000 1000 1000 >> $OUTPUT_FILE
+            #export OMP_NUM_THREADS=$n_processor; ./MatrixMultiplication.out 5000 1000 1000 5000 >> $OUTPUT_FILE
+	    export OMP_NUM_THREADS=$n_processor; ./MatrixMultiplication.out 50000 1000 1000 50000 >> $OUTPUT_FILE
+            echo $iteration "Debug( n_cpus: " $n_processor " : int_iter: " $i " )" >> $OUTPUT_FILE
+		fi
+		((iteration=iteration+1))
+    done
+done
+# The code should be compiled before submitting the job
+gcc -o exeC name.c -fopenmp
+
+# Run code
+./exeC
