@@ -49,20 +49,20 @@ _I decided to use this way to make things configurable, because of this approach
 _In this way, *DEBUG* settings and *SIZE* become known at compile time, simplifying the compiler's job and avoiding losing time on conditional prints or whatever depends on static user decisions._
 
 Currently, these are the important DEFINES/MACRO inside the project
-| Name                | Default Value      | Modifiability | Files                                      | Description                                                                                                                    |
-| :------------------ | :----------------: | :-----------: | :----------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------- |
-| SIZE                | 16                 | COMP.         | !utility_functions.c, !base_functions.c    | Defines the side size of the matrix. Total size is given by _SIZE \* SIZE_                                                     |
-| DEBUG               | 1                  | COMP.         | !utility_functions.c                       | Defines the level of debug verbosity of the program                                                                            |
-| PREFETCH_OFFSET     | 5                  | COMP.         | imp_functions.c                            | Defines the index offset from the current element, of the element that the prefetch instruction has to load                    |
-| TILE_SIDE_SIZE      | 16                 | COMP.         | exp_functions.c, imp_functions.c           | Defines the side size of block, used for the tiling technique                                                                  |
-| FIXED_VALUE         | 32.6               | COMP.         | utility_functions.c                        | Defines the value used for initialization of matrix in fixed init mode                                                         |
-| EQ_OFFSET           | 0.02               | COMP.         | utility_functions.c                        | Defines what is the tollerance when comparing the floats of two matrices                                                       |
-| RESULT_CSV_PATH     | "./results.csv"    | COMP.         | Matrix_SymCheck_Transposition\*.c          | Defines the path where to save the results file (the path is relative to where the code is ran)                                |
-| UNROLL4_INCREMENT   | 4                  | CODE          | utility_functions.c                        | Defines the increment to feed to the for when using unrolling4                                                                 |
-| RAND_LOB            | -1000000           | CODE          | utility_functions.c                        | Defines the LOwerBound of the random function                                                                                  |
-| RAND_UPB            | 1000000            | CODE          | utility_functions.c                        | Defines the UPperBound of the random function                                                                                  |
-| DIV_VALUE           | 1000.0             | CODE          | utility_functions.c                        | Defines the division factor to apply to every number computed by the random function                                           |
-| CONST_INIT          | **NOT DEFINED**    | COMP.         | utility_functions.c                        | When defined it tells the matrix initialization function to use the *FIXED_VALUE* as constant value for initialization         |
+| Name                | Default Value        | Modifiability | Files                                      | Description                                                                                                                    |
+| :------------------ | :------------------: | :-----------: | :----------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------- |
+| SIZE                | 16                   | COMPILATION   | Matrix_SymCheck_Transposition\*.c<br>exp_functions.c<br>imp_functions.c<br> | Defines the side size of the matrix. Total size is given by _SIZE \* SIZE_                    |
+| DEBUG               | 1                    | COMPILATION   | !utility_functions.c                       | Defines the level of debug verbosity of the program                                                                            |
+| PREFETCH_OFFSET     | 5                    | COMPILATION   | imp_functions.c                            | Defines the index offset from the current element, of the element that the prefetch instruction has to load                    |
+| TILE_SIDE_SIZE      | 16                   | COMPILATION   | exp_functions.c<br>imp_functions.c         | Defines the side size of block, used for the tiling technique                                                                  |
+| FIXED_VALUE         | 32.6                 | COMPILATION   | utility_functions.c                        | Defines the value used for initialization of matrix in fixed init mode                                                         |
+| EQ_OFFSET           | 0.02                 | COMPILATION   | utility_functions.c                        | Defines what is the tollerance when comparing the floats of two matrices                                                       |
+| RESULT_CSV_PATH     | ./results.csv        | COMPILATION   | Matrix_SymCheck_Transposition\*.c          | Defines the path where to save the results file (the path is relative to where the code is ran)                                |
+| UNROLL4_INCREMENT   | 4                    | CODE          | utility_functions.c                        | Defines the increment to feed to the for when using unrolling4                                                                 |
+| RAND_LOB            | -1000000             | CODE          | utility_functions.c                        | Defines the LOwerBound of the random function                                                                                  |
+| RAND_UPB            | 1000000              | CODE          | utility_functions.c                        | Defines the UPperBound of the random function                                                                                  |
+| DIV_VALUE           | 1000.0               | CODE          | utility_functions.c                        | Defines the division factor to apply to every number computed by the random function                                           |
+| CONST_INIT          | **NOT DEFINED**      | COMPILATION   | utility_functions.c                        | When defined it tells the matrix initialization function to use the *FIXED_VALUE* as constant value for initialization         |
 
 DEBUG macro can assume multiple values(0, 1, 2, 3):
 
@@ -71,16 +71,20 @@ DEBUG macro can assume multiple values(0, 1, 2, 3):
 2. Writes the same of 1, plus it visually displays matrices
 3. Writes the same of 2, plus the indexes iteration by iteration of the two main functions
 
-## How to compile
+---
 
-> ❗ To run the following steps you need to be at least a bit comfortable with a terminal.
+## Running a single code
+
+### How to compile
+
+> ⚠️ To run the following steps, you must be at least a bit comfortable with a terminal.
 
 -> Clone the repository.
 -> You should create the **`build`** folder, if it doesn't exists:
 ```
 mkdir build
 ```
--> Then choose a code you want to try out and waht configurations you want to change, like:
+-> Then choose a code you want to try out and what configurations you want to change, like:
 >**CODE:** `Matrix_SymCheck_TranspositionImp1_MA.c` in `src/`
 >
 >**DEFINES:** `-D SIZE=64 -D DEBUG=1 -D PREFETCH_OFFSET=5`
@@ -95,7 +99,7 @@ mkdir build
 gcc ./src/Matrix_SymCheck_TranspositionImp1_MA.c -o ./build/exec_imp1_ma -D SIZE=64 -D DEBUG=1 -D PREFETCH_OFFSET=5 -fopenmp
 ```
 
-## How to run
+### How to run
 -> After the compilation the above code is run, from the root of the project, with the command:
 ```
 ./build/exec_imp1_ma
@@ -111,3 +115,15 @@ The two matrices are equal? -> True
 Time to check the matrix symmetry (omp_get_wtime) =     0.000072880 sec
 Time to transpose the matrix (omp_get_wtime)      =     0.000064671 sec
 ```
+
+---
+
+## Running full project - cluster
+
+### How the PBS file is structured
+
+### How to run the PBS
+
+---
+
+## Running Python analyzer and grapher
