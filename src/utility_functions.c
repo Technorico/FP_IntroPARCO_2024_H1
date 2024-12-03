@@ -23,8 +23,7 @@
     #include <stdbool.h>
     #include <inttypes.h>
 
-    // -------------------------- Utility Functions -------------------------
-
+// ---------------------- Matrix Utility Functions ----------------------
 
     float* matInitSA(uint64_t side_size){
         float *M = (float*)malloc(side_size * side_size * sizeof(float));
@@ -109,16 +108,6 @@
         return equal;
     }
 
-    void saveResults(char *file_path, uint32_t rand_seed, uint64_t side_size, uint64_t memory_rw, uint64_t n_of_threads, float symCheckTime, float matTransposeTime){
-        FILE *fp = fopen(file_path, "a");
-        if(fp == NULL){
-            printf("\e[91;1mCould NOT open the file!!\e[0m\n");
-        }
-        else{
-            fprintf(fp, "%"PRIu32":%"PRIu64":%"PRIu64":%"PRIu64":%015.9f:%015.9f\n", rand_seed, side_size, memory_rw, n_of_threads, symCheckTime, matTransposeTime);
-            fclose(fp);
-        }
-    }
 
     void freeSA(float *mat){
         free(mat);
@@ -131,5 +120,38 @@
         free(mat);
     }
 
+    // -------------------------- Utility Functions -------------------------
+
+    void saveResults(char *file_path, uint32_t rand_seed, uint64_t side_size, uint64_t memory_rw, uint64_t n_of_threads, float symCheckTime, float matTransposeTime){
+        FILE *fp = fopen(file_path, "a");
+        if(fp == NULL){
+            printf("\e[91;1mCould NOT open the file!!\e[0m\n");
+        }
+        else{
+            fprintf(fp, "%"PRIu32":%"PRIu64":%"PRIu64":%"PRIu64":%015.9f:%015.9f\n", rand_seed, side_size, memory_rw, n_of_threads, symCheckTime, matTransposeTime);
+            fclose(fp);
+        }
+    }
+
+    char* filename_from_path(char *path){
+        uint64_t index = 0;
+        uint64_t start_name_index = 0;
+        char ch = path[index];
+        while(ch != '\0'){
+            if((ch == '/' || ch == '\\') && path[index + 1] != '\0'){
+                start_name_index = index + 1;
+            }
+            index++;
+            ch = path[index];
+        }
+        uint64_t name_str_lenght = (index + 1 - start_name_index);
+        char *filename = (char *)malloc(name_str_lenght * sizeof(char));
+        for(uint64_t i = 0; i < name_str_lenght; i++){
+            filename[i] = path[i + start_name_index];
+        }
+        return filename;
+    }
+    
     // ----------------------------------------------------------------------
+
 #endif
