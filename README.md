@@ -49,10 +49,10 @@ _I decided to use this way to make things configurable, because of this approach
 _In this way, *DEBUG* settings and *SIZE* become known at compile time, simplifying the compiler's job and avoiding losing time on conditional prints or whatever depends on static user decisions._
 
 Currently, these are the important DEFINES/MACRO inside the project
-| Name                | Default&nbsp;Value   | Modifiability | Files                                      | Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                                                                    |
+| Name                | Default&nbsp;Value   | Modifiability | Files                                      | Description                                                                                                                    |
 | :------------------ | :------------------: | :-----------: | :----------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------- |
-| SIZE                | 16                   | COMPILATION   | Matrix_SymCheck_Transposition\*.c<br>exp_functions.c<br>imp_functions.c<br> | Defines the side size of the matrix. Total size is given by _SIZE \* SIZE_                    |
-| DEBUG               | 1                    | COMPILATION   | !utility_functions.c                       | Defines the level of debug verbosity of the program                                                                            |
+| SIZE                | 16                   | COMPILATION   | Matrix_SymCheck_Transposition\*.c<br>imp_functions.c<br>exp_functions.c | Defines the side size of the matrix. Total size is given by _SIZE \* SIZE_                        |
+| DEBUG               | 1                    | COMPILATION   | Matrix_SymCheck_Transposition\*.c<br>base_functions.c<br>imp_functions.c<br>exp_functions.c | Defines the level of debug verbosity of the program                           |
 | PREFETCH_OFFSET     | 5                    | COMPILATION   | imp_functions.c                            | Defines the index offset from the current element, of the element that the prefetch instruction has to load                    |
 | TILE_SIDE_SIZE      | 16                   | COMPILATION   | exp_functions.c<br>imp_functions.c         | Defines the side size of block, used for the tiling technique                                                                  |
 | FIXED_VALUE         | 32.6                 | COMPILATION   | utility_functions.c                        | Defines the value used for initialization of matrix in fixed init mode                                                         |
